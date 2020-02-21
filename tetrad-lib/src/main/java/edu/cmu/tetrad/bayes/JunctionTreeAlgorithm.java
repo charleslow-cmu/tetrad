@@ -433,6 +433,22 @@ public class JunctionTreeAlgorithm implements TetradSerializable {
         return Math.exp(logJointClusterPotentials - logJointSeparatorPotentials);
     }
 
+    public JointProbabilityDistribution getJointProbabilityDistribution() {
+        int cardinality = getCardinality(Arrays.stream(graphNodes).collect(Collectors.toSet()));
+        int size = graphNodes.length;
+        int[] vals = new int[size];
+        int[][] values = new int[cardinality][size];
+        double[] probabilities = new double[cardinality];
+        for (int i = 0; i < cardinality; i++) {
+            System.arraycopy(vals, 0, values[i], 0, size);
+            probabilities[i] = getJointProbabilityAll(vals);
+
+            updateValues(size, vals, graphNodes);
+        }
+
+        return new JointProbabilityDistribution(values, probabilities);
+    }
+
     public double[] getMarginalProbability(int iNode) {
         return isValid(iNode)
                 ? margins[iNode]
@@ -824,6 +840,27 @@ public class JunctionTreeAlgorithm implements TetradSerializable {
             });
 
             return sb.toString();
+        }
+
+    }
+
+    public class JointProbabilityDistribution {
+
+        private final int[][] values;
+
+        private final double[] probabilities;
+
+        public JointProbabilityDistribution(int[][] values, double[] probabilities) {
+            this.values = values;
+            this.probabilities = probabilities;
+        }
+
+        public int[][] getValues() {
+            return values;
+        }
+
+        public double[] getProbabilities() {
+            return probabilities;
         }
 
     }
